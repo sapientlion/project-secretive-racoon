@@ -12,11 +12,17 @@ class PCipher:
     _nonce: bytes = bytes()                 # A unique initialization vector which must be used once.
     _key: bytes = bytes()                   # A decryption key.
 
+    def get_data(self):
+        return self._data
+
     def get_nonce(self):
         return self._nonce
 
     def get_key(self):
         return self._key
+
+    def get_tag(self):
+        return self._authentication_tag
 
     def encrypt(self, key_length: int, data: bytes):
         """
@@ -29,9 +35,6 @@ class PCipher:
         if data is not None:
             self._data = data
 
-        #
-        # Class attribute must not be empty.
-        #
         if not self._data:
             return None
 
@@ -51,20 +54,35 @@ class PCipher:
 
         return self
 
-    def decrypt(self, key: bytes):
+    def decrypt(self, nonce: bytes, key: bytes, authentication_tag: bytes, data: bytes, ):
         """
         Decrypt preceding encrypted data
         :param key: preceding key for getting access to the data
         :return: decrypted data as a series of bytes
         """
 
+        if nonce is not None:
+            self._nonce = nonce
+
+        if nonce is None:
+            return None
+
         if key is not None:
             self._key = key
 
-        #
-        # Class attributes must not be empty.
-        #
         if self._key is None:
+            return None
+
+        if authentication_tag is not None:
+            self._authentication_tag = authentication_tag
+
+        if not self._authentication_tag:
+            return None
+
+        if data is not None:
+            self._data = data
+
+        if not self._data:
             return None
 
         #

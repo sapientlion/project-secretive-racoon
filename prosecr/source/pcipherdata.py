@@ -21,7 +21,7 @@ class PCipherData:
 
         return True
 
-    def write(self, path: str):
+    def write(self, path: str, data: bytes):
         """
         Write data to a file.
         :param path: absolute path to a file.
@@ -37,6 +37,12 @@ class PCipherData:
         file = open(path + '.psr', 'wb')
 
         if file == OSError:
+            return None
+
+        if data is not None:
+            self.__data = data
+
+        if self.__data is None:
             return None
 
         #
