@@ -1,6 +1,5 @@
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
-from os.path import exists
 
 
 class PCipher:
@@ -8,13 +7,18 @@ class PCipher:
     Custom-made cipher which uses AES encryption algorithm as a basis for all encryption and decryption processes.
     """
 
-    _data = bytes()                 # Raw data or decrypted data.
-    _cipher_text = bytes()          # Encrypted data.
-    _authentication_tag = bytes()   # An authentication tag.
-    key = str('')                   # A decryption key.
-    nonce = str('')                 # A unique initialization vector which must be used once.
+    _data: bytes = bytes()                   # Raw data or decrypted data.
+    _authentication_tag: bytes = bytes()     # An authentication tag.
+    _nonce: bytes = bytes()                 # A unique initialization vector which must be used once.
+    _key: bytes = bytes()                   # A decryption key.
 
-    def encrypt(self, key_length: int(), data):
+    def get_nonce(self):
+        return self._nonce
+
+    def get_key(self):
+        return self._key
+
+    def encrypt(self, key_length: int, data: bytes):
         """
         Encrypt given data using AES algorithm
         :param key_length: key length
@@ -34,45 +38,42 @@ class PCipher:
         #
         # Generate a pseudo-random key.
         #
-        self.key = get_random_bytes(key_length)
+        self._key = get_random_bytes(key_length)
         #
         # Initialize a new cipher using newly generated key.
         #
-        cipher = AES.new(self.key, AES.MODE_EAX)
+        cipher = AES.new(self._key, AES.MODE_EAX)
         #
         # Encrypt data.
         #
         self._data, self._authentication_tag = cipher.encrypt_and_digest(self._data)
-        #self._cipher_text, self._authentication_tag = cipher.encrypt_and_digest(self._data)
-        self.nonce = cipher.nonce
+        self._nonce = cipher.nonce
 
-        return self._data
-        #return self._cipher_text
+        return self
 
-    def decrypt(self, key):
+    def decrypt(self, key: bytes):
         """
         Decrypt preceding encrypted data
-        :param key: preceding key for unlocking data
+        :param key: preceding key for getting access to the data
         :return: decrypted data as a series of bytes
         """
 
-        if key != '':
-            self.key = key
+        if key is not None:
+            self._key = key
 
         #
         # Class attributes must not be empty.
         #
-        if self.key == '':
-            return ''
+        if self._key is None:
+            return None
 
         #
         # Initialize a new cipher using a key and a nonce.
         #
-        cipher = AES.new(self.key, AES.MODE_EAX, self.nonce)
+        cipher = AES.new(self._key, AES.MODE_EAX, self._nonce)
         #
         # Decrypt data.
         #
         self._data = cipher.decrypt_and_verify(self._data, self._authentication_tag)
-        #self._data = cipher.decrypt_and_verify(self._cipher_text, self._authentication_tag)
 
-        return self._data
+        return self
