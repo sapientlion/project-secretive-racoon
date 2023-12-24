@@ -25,6 +25,7 @@ class PCipherData:
         """
         Write data to a file.
         :param path: absolute path to a file.
+        :param data: data to save
         :return: return None on fail. Return data on success.
         """
 

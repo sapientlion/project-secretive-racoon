@@ -7,10 +7,10 @@ class PCipher:
     Custom-made cipher which uses AES encryption algorithm as a basis for all encryption and decryption processes.
     """
 
-    _data: bytes = bytes()                   # Raw data or decrypted data.
-    _authentication_tag: bytes = bytes()     # An authentication tag.
-    _nonce: bytes = bytes()                 # A unique initialization vector which must be used once.
-    _key: bytes = bytes()                   # A decryption key.
+    _data: bytes = bytes()  # Raw data or decrypted data.
+    _authentication_tag: bytes = bytes()  # An authentication tag.
+    _nonce: bytes = bytes()  # A unique initialization vector which must not be reused with other keys.
+    _key: bytes = bytes()  # A decryption key.
 
     def get_data(self):
         return self._data
@@ -31,6 +31,12 @@ class PCipher:
         :param data: data to encrypt
         :return: encrypted data as a series of bytes
         """
+
+        #
+        # The key must be of specific length.
+        #
+        if len(self._key) != 16 | len(self._key) != 24 | len(self._key) != 32:
+            return None
 
         if data is not None:
             self._data = data
@@ -55,6 +61,15 @@ class PCipher:
         return self
 
     def decrypt(self, nonce: bytes, key: bytes, authentication_tag: bytes, data: bytes, ):
+        """
+        Decrypt preceding encrypted data
+        :param nonce: a unique initialization vector which must not be reused with other keys.
+        :param key: a decryption key
+        :param authentication_tag: data validation tag
+        :param data: the data itself
+        :return: PCipher object filled with a new data
+        """
+
         """
         Decrypt preceding encrypted data
         :param key: preceding key for getting access to the data
@@ -86,12 +101,21 @@ class PCipher:
             return None
 
         #
+        # The key must be of specific length.
+        #
+        if len(self._key) != 16 | len(self._key) != 24 | len(self._key) != 32:
+            return None
+
+        #
         # Initialize a new cipher using a key and a nonce.
         #
         cipher = AES.new(self._key, AES.MODE_EAX, self._nonce)
         #
-        # Decrypt data.
+        # Decrypt data. The following segment may fail if supplied with wrong data.
         #
-        self._data = cipher.decrypt_and_verify(self._data, self._authentication_tag)
+        try:
+            self._data = cipher.decrypt_and_verify(self._data, self._authentication_tag)
+        except ValueError:
+            return None
 
         return self
