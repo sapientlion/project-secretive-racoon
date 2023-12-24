@@ -2,7 +2,7 @@ from prosecr.source.pcipher import PCipher
 
 if __name__ == "__main__":
     loop_flag = True
-    pcipher = PCipher()
+    #pcipher = PCipher()
 
     while loop_flag:
         print('(1) Encrypt\n')
@@ -13,8 +13,11 @@ if __name__ == "__main__":
         value = int(input('PSR: '))
 
         match value:
+            #
+            # Encrypt data and write it to the file.
+            #
             case 1:
-                path = input('File path: ')
+                '''path = input('File path: ')
                 file_data = pcipher.read(path)
 
                 if file_data is None:
@@ -27,9 +30,12 @@ if __name__ == "__main__":
 
                     pcipher.write(path)
 
-                    print('PSR: file is encrypted and ready to be decrypted.\n')
+                    print('PSR: file is encrypted and ready to be decrypted.\n')'''
+            #
+            # Load encrypted data into the program and decrypt it.
+            #
             case 2:
-                path = input('File path: ')
+                '''path = input('File path: ')
 
                 if file_flag is False:
                     print('PSR: failed to decrypt the file. Encrypt the data first and then decrypt it.\n')
@@ -37,7 +43,7 @@ if __name__ == "__main__":
                     decrypted_data = pcipher.decrypt(pcipher.key)
 
                     pcipher.write(path)
-                    print('PSR: file is decrypted.\n')
+                    print('PSR: file is decrypted.\n')'''
             case 3:
                 loop = False
 
